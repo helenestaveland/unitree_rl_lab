@@ -56,6 +56,23 @@ public:
         spdlog::info("FSM: Start {}", currentState->getStateString());
     }
 
+    void forceTransition(int stateMode)
+    {
+        if (currentState->isState(stateMode)) return;
+        for (auto & state : states)
+        {
+            if (state->isState(stateMode))
+            {
+                spdlog::info("FSM: Forced transition from {} to {}", currentState->getStateString(), state->getStateString());
+                currentState->exit();
+                currentState = state;
+                currentState->enter();
+                return;
+            }
+        }
+        spdlog::error("FSM: forceTransition - no state with mode {} registered", stateMode);
+    }
+
     void add(std::shared_ptr<BaseState> state)
     {
         for(auto & s : states)

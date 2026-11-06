@@ -48,8 +48,18 @@ int main(int argc, char** argv)
     auto fsm = std::make_unique<CtrlFSM>(param::config["FSM"]);
     fsm->start();
 
-    std::cout << "Press [L2 + Up] to enter FixStand mode.\n";
-    std::cout << "And then press [R1 + X] to start controlling the robot.\n";
+    std::cout << "No joystick detected -- running a scripted, fully automatic\n";
+    std::cout << "sequence instead: Passive -> FixStand -> Velocity.\n";
+
+    sleep(2);
+    spdlog::info("Scripted: forcing transition to FixStand");
+    fsm->forceTransition(2); // FixStand
+    std::cout << "FixStand active. Lower the robot with key 8 until the feet touch the floor.\n";
+    std::cout << "Press ENTER here when you are ready to enter Velocity mode.\n";
+    std::cin.get();
+
+    spdlog::info("Manual test: forcing transition to Velocity");
+    fsm->forceTransition(3); // Velocity (RLBase policy)
 
     while (true)
     {
