@@ -1,4 +1,8 @@
+#include <cstdio>
 #include "FSM/State_RLBase.h"
+#include "Ros2VelocityReceiver.h"
+#include <algorithm>
+#include <cstdlib>
 #include "unitree_articulation.h"
 #include "isaaclab/envs/mdp/observations/observations.h"
 #include "isaaclab/envs/mdp/actions/joint_actions.h"
@@ -6,6 +10,36 @@
 
 namespace isaaclab
 {
+
+REGISTER_OBSERVATION(ros2_velocity_commands)
+{
+    static Ros2VelocityReceiver receiver;
+    const auto velocity = receiver.latest();
+
+    static int debug_counter = 0;
+    if (++debug_counter % 25 == 0) {
+        std::fprintf(stderr,
+            "[G1 DEBUG] vx=%.3f, vy=%.3f, wz=%.3f\n",
+            velocity[0], velocity[1], velocity[2]);
+    }
+
+    const auto ranges = env->cfg["commands"]["base_velocity"]["ranges"];
+
+    const auto limit = [&](float value, const char* name, float max_speed) {
+        const float lower = std::max(
+            ranges[name][0].as<float>(), -max_speed);
+        const float upper = std::min(
+            ranges[name][1].as<float>(), max_speed);
+        return std::clamp(value, lower, upper);
+    };
+
+    return std::vector<float>{
+        limit(velocity[0], "lin_vel_x", 1.0f),
+        limit(velocity[1], "lin_vel_y", 0.08f),
+        limit(velocity[2], "ang_vel_z", 0.2f)
+    };
+}
+
 // keyboard velocity commands example
 // change "velocity_commands" observation name in policy deploy.yaml to "keyboard_velocity_commands"
 REGISTER_OBSERVATION(keyboard_velocity_commands)
