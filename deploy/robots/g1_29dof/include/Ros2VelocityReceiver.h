@@ -19,10 +19,10 @@ public:
             rclcpp::init(0, nullptr);
 
         node_ = std::make_shared<rclcpp::Node>(
-            "helene_g1_velocity_receiver");
+            "g1_velocity_receiver");
 
         sub_ = node_->create_subscription<geometry_msgs::msg::Twist>(
-            "/helene/g1_cmd_vel", 10,
+            "/g1/cmd_vel", 10,
             [this](geometry_msgs::msg::Twist::SharedPtr msg)
             {
                 float vx = msg->linear.x;
