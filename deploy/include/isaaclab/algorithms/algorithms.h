@@ -33,6 +33,7 @@ public:
     {
         // Init Model
         env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "onnx_model");
+        session_options.SetIntraOpNumThreads(1);
         session_options.SetGraphOptimizationLevel(ORT_ENABLE_EXTENDED);
 
         session = std::make_unique<Ort::Session>(env, model_path.c_str(), session_options);
