@@ -25,18 +25,18 @@ REGISTER_OBSERVATION(ros2_velocity_commands)
 
     const auto ranges = env->cfg["commands"]["base_velocity"]["ranges"];
 
-    const auto limit = [&](float value, const char* name, float max_speed) {
-        const float lower = std::max(
-            ranges[name][0].as<float>(), -max_speed);
-        const float upper = std::min(
-            ranges[name][1].as<float>(), max_speed);
-        return std::clamp(value, lower, upper);
+    const auto limit = [&](float value, const char* name) {
+        return std::clamp(
+            value,
+            ranges[name][0].as<float>(),
+            ranges[name][1].as<float>()
+        );
     };
 
     return std::vector<float>{
-        limit(velocity[0], "lin_vel_x", 1.0f),
-        limit(velocity[1], "lin_vel_y", 0.08f),
-        limit(velocity[2], "ang_vel_z", 0.2f)
+        limit(velocity[0], "lin_vel_x"),
+        limit(velocity[1], "lin_vel_y"),
+        limit(velocity[2], "ang_vel_z")
     };
 }
 
